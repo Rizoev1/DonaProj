@@ -6,67 +6,70 @@
 //
 
 import SwiftUI
+import FlowStacks
 
 struct HomeScreen: View {
     @Environment(\.theme) private var theme
+    @EnvironmentObject var navigator: FlowNavigator<HomeRouter>
 
     var body: some View {
-        NavigationView {
-            ZStack(alignment: .topTrailing) {
-                LinearGradient(
-                    colors: [
-                        theme.background.inversePrimary,
-                        theme.background.background
-                    ],
-                    startPoint: .top,
-                    endPoint: .bottom
-                )
+        ZStack(alignment: .topTrailing) {
+            LinearGradient(
+                colors: [
+                    theme.background.inversePrimary,
+                    theme.background.background
+                ],
+                startPoint: .bottom,
+                endPoint: .top
+            )
+            .ignoresSafeArea()
+
+            Image(.homeGradient)
+                .resizable()
+                .scaledToFit()
                 .ignoresSafeArea()
+                .offset(y: -40)
 
-                Image(.homeGradient)
-                    .resizable()
-                    .scaledToFit()
-                    .ignoresSafeArea()
-
-                ScrollView(showsIndicators: false) {
-                    VStack(spacing: 24) {
-                        balanceCardView()
-                            .padding(.horizontal, 12)
-                        makeCommunityFund()
-                        makeQuickPay()
-                        makeRecentActivity()
-                            .padding(.horizontal, 12)
-                    }
-                    .padding(.top, 8)
+            ScrollView(showsIndicators: false) {
+                VStack(spacing: 24) {
+                    balanceCardView()
+                        .padding(.horizontal, 12)
+                    makeCommunityFund()
+                    makeQuickPay()
+                    makeRecentActivity()
+                        .padding(.horizontal, 12)
                 }
-            }
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
-                    HStack(spacing: 10) {
-                        Image(.profileMock)
-                            .resizable()
-                            .scaledToFill()
-                            .frame(width: 36, height: 36)
-                            .clipShape(Circle())
-                        Text("Дамир. Р")
-                            .font(AppFont.xLargeSemibold)
-                            .foregroundStyle(theme.text.onSurface)
-                            .fixedSize()
-                    }
-                    .fixedSize()
-                    .padding(2)
-                }
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button { } label: {
-                        Image(.notification)
-                            .resizable()
-                            .frame(width: 20, height: 20)
-                            .foregroundStyle(theme.stroke.scrim)
-                    }                }
+                .padding(.top, 8)
             }
         }
-        .navigationViewStyle(.stack)
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .navigationBarLeading) {
+                HStack(spacing: 10) {
+                    Image(.profileMock)
+                        .resizable()
+                        .scaledToFill()
+                        .frame(width: 36, height: 36)
+                        .clipShape(Circle())
+                    Text("Дамир. Р")
+                        .font(AppFont.xLargeSemibold)
+                        .foregroundStyle(theme.text.onSurface)
+                        .fixedSize()
+                }
+                .fixedSize()
+                .padding(2)
+            }
+            ToolbarItem(placement: .navigationBarTrailing) {
+                Button {
+                    navigator.push(.notifications)
+                } label: {
+                    Image(.notification)
+                        .resizable()
+                        .frame(width: 20, height: 20)
+                        .foregroundStyle(theme.stroke.scrim)
+                }
+            }
+        }
     }
     
     @ViewBuilder func balanceCardView() -> some View {
@@ -174,7 +177,7 @@ struct HomeScreen: View {
                 .clipShape(RoundedRectangle(cornerRadius: 12))
             }
             .padding(.horizontal, 12)
-
+            
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 12) {
                     ForEach(0 ..< 5, id: \.self) { _ in
@@ -185,7 +188,7 @@ struct HomeScreen: View {
             }
         }
     }
-
+    
     @ViewBuilder func makeQuickPay() -> some View {
         VStack(spacing: 12) {
             HStack {
@@ -207,7 +210,7 @@ struct HomeScreen: View {
                 .clipShape(RoundedRectangle(cornerRadius: 12))
             }
             .padding(.horizontal, 12)
-
+            
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 6) {
                     ForEach(0 ..< 5, id: \.self) { _ in
@@ -226,21 +229,26 @@ struct HomeScreen: View {
                     .font(AppFont.heading3)
                     .foregroundStyle(theme.text.onSurface)
                 Spacer()
-                HStack(spacing: 5) {
-                    Text("View All")
-                        .font(AppFont.smallRegular)
-                        .foregroundStyle(theme.text.onTertiary)
-                    Image(.arrowRight)
-                        .resizable()
-                        .frame(width: 12, height: 12)
+                Button {
+                    navigator.push(.activity)
+                } label: {
+                    HStack(spacing: 5) {
+                        Text("View All")
+                            .font(AppFont.smallRegular)
+                            .foregroundStyle(theme.text.onTertiary)
+                        Image(.arrowRight)
+                            .resizable()
+                            .frame(width: 12, height: 12)
+                            .foregroundStyle(theme.text.onTertiary)
+                    }
+                    .padding(.vertical, 3)
+                    .padding(.horizontal, 8)
+                    .background(theme.background.background)
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
                 }
-                .padding(.vertical, 3)
-                .padding(.horizontal, 8)
-                .background(theme.background.background)
-                .clipShape(RoundedRectangle(cornerRadius:12))
             }
             VStack(alignment: .leading, spacing: 12) {
-                ForEach(0 ..< 3) { _ in
+                ForEach(0 ..< 3, id: \.self) { index in
                     HStack(spacing: 12) {
                         Image(.amazonMock)
                             .resizable()
@@ -263,8 +271,10 @@ struct HomeScreen: View {
                                 .foregroundStyle(theme.text.onTertiary)
                         }
                     }
-                    Divider()
-                        .padding(.leading, 48)
+                    if index < 1 {
+                        Divider()
+                            .padding(.leading, 48)
+                    }
                 }
             }
             .padding(.horizontal, 14)

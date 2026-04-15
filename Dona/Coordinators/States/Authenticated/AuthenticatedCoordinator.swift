@@ -10,19 +10,18 @@ import FlowStacks
 
 enum AuthenticatedRouter: Hashable {
     case home
-    // добавьте остальные экраны
 }
 
 struct AuthenticatedCoordinator: View {
     @State private var routes: Routes<AuthenticatedRouter> = []
 
     var body: some View {
-        FlowStack($routes, withNavigation: true) {
-            HomeScreen()
+        FlowStack($routes, withNavigation: false) {
+            HomeCoordinator()
                 .flowDestination(for: AuthenticatedRouter.self) { screen in
                     switch screen {
                     case .home:
-                        HomeScreen()
+                        HomeCoordinator()
                     }
                 }
         }
